@@ -1,0 +1,3 @@
+- [ ] Allow multiple users to sign in and save their own prompts
+- [ ] Allow users to share their prompt with other users via URL
+- [ ] Make the frontend fully responsive so that it loads properly on mobile phone as well
