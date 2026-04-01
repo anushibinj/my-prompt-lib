@@ -6,7 +6,7 @@ import { PromptEditor } from './components/PromptEditor';
 import { PromptHistory } from './components/PromptHistory';
 import { SharedPromptRunner } from './components/SharedPromptRunner';
 import { AuthPage } from './components/AuthPage';
-import { getPrompts, logout, setNetworkErrorHandler, type Prompt } from './api/promptApi';
+import { getPrompts, logout, setNetworkErrorHandler, pingBackend, type Prompt } from './api/promptApi';
 
 function App() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -43,6 +43,19 @@ function App() {
   useEffect(() => {
     setNetworkErrorHandler(() => setBackendDown(true));
   }, []);
+
+  // Poll health endpoint every 5 s while banner is shown; auto-dismiss when backend recovers
+  useEffect(() => {
+    if (!backendDown) return;
+    const interval = setInterval(async () => {
+      const ok = await pingBackend();
+      if (ok) {
+        setBackendDown(false);
+        refreshPrompts();
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [backendDown, refreshPrompts]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

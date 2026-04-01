@@ -53,6 +53,16 @@ api.interceptors.response.use(
     }
 );
 
+// Lightweight health check that does not require auth
+export const pingBackend = async (): Promise<boolean> => {
+    try {
+        await api.get('/health');
+        return true;
+    } catch {
+        return false;
+    }
+};
+
 // Auth API
 export const register = async (username: string, password: string): Promise<AuthResponse> => {
     const response = await api.post('/auth/register', { username, password });

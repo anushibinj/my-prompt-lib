@@ -13,6 +13,6 @@
 - [x] BUG: When just the prompt is made public, that doesn't appear in the history
 - [x] Feature: When prompts are loading from the backend, show a spinner on the left widget. If it fails to load, show an error.
 - [x] Feature: If the backend is down, show an error in the frontend saying something like the site is down for maintenance.
-- [ ] Bug: Once the backend is back online, the maintenance banner on the top should get dismissed automatically
+- [x] Bug: Once the backend is back online, the maintenance banner on the top should get dismissed automatically
 - [ ] Make the left sidebar collapsible
 - [ ] The output preview should show unfilled placeholders highlighted in red color. The filled placeholders should be green highlighted.
