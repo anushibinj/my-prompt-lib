@@ -4,3 +4,4 @@
 - [ ] Allow Sign in with Google too. The Google client credentials and details should be passed into application.yml
 - [ ] Add flyway migration to the app for managing the DB schema. Make sure that all queries and components are modifiable in the future. for example, name indices and constraints so that they can be referred to in the later migration SQLs and updated
 - [ ] The application's name is "My Prompt Lib". Change all of the frontend to reflect the same.
+- [ ] Prompts should be versioned. Add a history button in the frontend so that the user can see a history of prompts. Also, the diff between each version should be shown to the user.
