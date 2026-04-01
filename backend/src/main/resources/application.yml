@@ -2,9 +2,9 @@ spring:
   application:
     name: my-prompt-lib
   datasource:
-    url: jdbc:postgresql://localhost:5432/promptdb
-    username: postgres
-    password: password
+    url: ${JDBC_URL:jdbc:postgresql://localhost:5432/promptdb}
+    username: ${JDBC_USERNAME:postgres}
+    password: ${JDBC_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   flyway:
     table: mpl_schema_table
