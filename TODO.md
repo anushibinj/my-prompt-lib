@@ -10,3 +10,4 @@
 - [x] Feature: Add a "Share" button in the prompt page
 - [x] Feature: The website header should redirect to "/". Add a link to it.
 - [x] Bug: After editing a prompt and clicking Save, it should save it and go back to the same prompt. As of now, it is redirecting to the landing page.
+- [ ] BUG: When just the prompt is made public, that doesn't appear in the history
