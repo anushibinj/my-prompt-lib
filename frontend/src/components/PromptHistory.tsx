@@ -65,7 +65,10 @@ export function PromptHistory() {
                     })}
                   </span>
                 </div>
-                <div className="history-item-title">{v.title}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="history-item-title">{v.title}</div>
+                  {v.isPublic && <span className="public-badge" style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem', flexShrink: 0 }}>public</span>}
+                </div>
               </div>
             ))}
           </div>
@@ -82,6 +85,8 @@ export function PromptHistory() {
                     newTitle={selected.title}
                     oldContent={previousVersion.content}
                     newContent={selected.content}
+                    oldIsPublic={previousVersion.isPublic}
+                    newIsPublic={selected.isPublic}
                     oldVersion={previousVersion.versionNumber}
                     newVersion={selected.versionNumber}
                   />
@@ -107,12 +112,15 @@ interface DiffViewProps {
   newTitle: string;
   oldContent: string;
   newContent: string;
+  oldIsPublic: boolean;
+  newIsPublic: boolean;
   oldVersion: number;
   newVersion: number;
 }
 
-function DiffView({ oldTitle, newTitle, oldContent, newContent, oldVersion, newVersion }: DiffViewProps) {
+function DiffView({ oldTitle, newTitle, oldContent, newContent, oldIsPublic, newIsPublic, oldVersion, newVersion }: DiffViewProps) {
   const titleChanged = oldTitle !== newTitle;
+  const visibilityChanged = oldIsPublic !== newIsPublic;
   const contentDiff = computeLineDiff(oldContent, newContent);
 
   return (
@@ -126,6 +134,14 @@ function DiffView({ oldTitle, newTitle, oldContent, newContent, oldVersion, newV
           <span className="diff-removed-inline">{oldTitle}</span>
           <span style={{ color: 'var(--text-muted)' }}> → </span>
           <span className="diff-added-inline">{newTitle}</span>
+        </div>
+      )}
+      {visibilityChanged && (
+        <div className="diff-title-change">
+          <span className="diff-label">Visibility:</span>
+          <span className="diff-removed-inline">{oldIsPublic ? 'public' : 'private'}</span>
+          <span style={{ color: 'var(--text-muted)' }}> → </span>
+          <span className="diff-added-inline">{newIsPublic ? 'public' : 'private'}</span>
         </div>
       )}
       <div className="diff-container">
