@@ -53,9 +53,9 @@ export function SharedPromptRunner() {
     return (
       <div className="shared-page">
         <div className="card" style={{ maxWidth: '600px', margin: '2rem auto', textAlign: 'center' }}>
-          <h1>🧩 PromptLib</h1>
+          <h1>🧩 My Prompt Lib</h1>
           <p style={{ color: 'var(--accent-danger)' }}>{error}</p>
-          <a href="/" className="btn btn-primary">Go to PromptLib</a>
+          <a href="/" className="btn btn-primary">Go to My Prompt Lib</a>
         </div>
       </div>
     );
@@ -67,7 +67,7 @@ export function SharedPromptRunner() {
     <div className="shared-page">
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
         <div style={{ marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          🧩 Shared via <a href="/" style={{ color: 'var(--text-primary)' }}>PromptLib</a>
+          🧩 Shared via <a href="/" style={{ color: 'var(--text-primary)' }}>My Prompt Lib</a>
         </div>
         <div className="card">
           <h1>{prompt.title}</h1>

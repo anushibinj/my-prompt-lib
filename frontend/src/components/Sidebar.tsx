@@ -20,7 +20,7 @@ export function Sidebar({ prompts, username, onLogout }: SidebarProps) {
       {mobileOpen && <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />}
       <div className={`sidebar ${mobileOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
-          🧩 PromptLib
+          🧩 My Prompt Lib
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <Link to="/new" className="btn btn-primary" style={{ padding: '0.4rem 0.6rem', fontSize: '1rem' }} onClick={() => setMobileOpen(false)}>+</Link>
             <button className="btn btn-icon sidebar-close-btn" onClick={() => setMobileOpen(false)}>

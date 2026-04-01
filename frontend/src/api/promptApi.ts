@@ -7,13 +7,23 @@ export interface Prompt {
     isPublic?: boolean;
 }
 
+export interface PromptVersion {
+    id: string;
+    promptId: string;
+    versionNumber: number;
+    title: string;
+    content: string;
+    isPublic: boolean;
+    createdAt: string;
+}
+
 export interface AuthResponse {
     token: string;
     username: string;
 }
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: `${import.meta.env.VITE_BACKEND_ROOT_URL}/api`,
 });
 
 // Attach Bearer token to every request if present
@@ -69,6 +79,12 @@ export const deletePrompt = async (id: string): Promise<void> => {
 // Shared prompts (no auth required)
 export const getSharedPrompt = async (id: string): Promise<Prompt> => {
     const response = await api.get(`/prompts/shared/${id}`);
+    return response.data;
+};
+
+// Prompt history
+export const getPromptHistory = async (id: string): Promise<PromptVersion[]> => {
+    const response = await api.get(`/prompts/${id}/history`);
     return response.data;
 };
 

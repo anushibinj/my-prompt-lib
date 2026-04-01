@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { PromptRunner } from './components/PromptRunner';
 import { PromptEditor } from './components/PromptEditor';
+import { PromptHistory } from './components/PromptHistory';
 import { SharedPromptRunner } from './components/SharedPromptRunner';
 import { AuthPage } from './components/AuthPage';
 import { getPrompts, logout, type Prompt } from './api/promptApi';
@@ -51,10 +52,11 @@ function App() {
             <div className="app-container">
               <Sidebar prompts={prompts} username={username} onLogout={handleLogout} />
               <Routes>
-                <Route path="/" element={<div className="main-content"><div className="card"><h1>Welcome to PromptLib</h1><p>Select a prompt from the sidebar or create a new one to get started.</p></div></div>} />
+                <Route path="/" element={<div className="main-content"><div className="card"><h1>Welcome to My Prompt Lib</h1><p>Select a prompt from the sidebar or create a new one to get started.</p></div></div>} />
                 <Route path="/new" element={<PromptEditor onSaved={refreshPrompts} />} />
                 <Route path="/edit/:id" element={<PromptEditor onSaved={refreshPrompts} />} />
                 <Route path="/prompt/:id" element={<PromptRunner onDeleted={refreshPrompts} />} />
+                <Route path="/prompt/:id/history" element={<PromptHistory />} />
               </Routes>
             </div>
           )

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPrompt, deletePrompt, type Prompt } from '../api/promptApi';
-import { FiCopy, FiEdit2, FiTrash2, FiShare2 } from 'react-icons/fi';
+import { FiCopy, FiEdit2, FiTrash2, FiShare2, FiClock } from 'react-icons/fi';
 
 interface PromptRunnerProps {
   onDeleted?: () => void;
@@ -82,6 +82,7 @@ export function PromptRunner({ onDeleted }: PromptRunnerProps) {
                         <FiShare2 /> {linkCopied ? 'Link Copied!' : 'Share Link'}
                     </button>
                 )}
+                <button className="btn" onClick={() => navigate(`/prompt/${id}/history`)}><FiClock /> History</button>
                 <button className="btn" onClick={() => navigate(`/edit/${id}`)}><FiEdit2 /> Edit</button>
                 <button className="btn btn-danger" onClick={handleDelete}><FiTrash2 /> Delete</button>
             </div>

@@ -1,38 +1,35 @@
 package com.anushibinj.mypromptlib.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "prompts")
+@Table(name = "prompt_versions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Prompt {
+public class PromptVersion {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank(message = "Title cannot be empty")
+    private UUID promptId;
+
+    private int versionNumber;
+
     private String title;
 
-    @NotBlank(message = "Content cannot be empty")
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private UUID userId;
-
     private boolean isPublic;
+
+    private Instant createdAt;
 }

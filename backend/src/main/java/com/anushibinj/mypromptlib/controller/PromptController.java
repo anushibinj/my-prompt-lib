@@ -1,6 +1,7 @@
 package com.anushibinj.mypromptlib.controller;
 
 import com.anushibinj.mypromptlib.model.Prompt;
+import com.anushibinj.mypromptlib.model.PromptVersion;
 import com.anushibinj.mypromptlib.service.PromptService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,12 @@ public class PromptController {
     public ResponseEntity<Prompt> getPromptById(@PathVariable UUID id, jakarta.servlet.http.HttpServletRequest request) {
         com.anushibinj.mypromptlib.model.User user = (com.anushibinj.mypromptlib.model.User) request.getAttribute("user");
         return ResponseEntity.ok(promptService.getPromptByIdAndUser(id, user.getId()));
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<PromptVersion>> getPromptHistory(@PathVariable UUID id, jakarta.servlet.http.HttpServletRequest request) {
+        com.anushibinj.mypromptlib.model.User user = (com.anushibinj.mypromptlib.model.User) request.getAttribute("user");
+        return ResponseEntity.ok(promptService.getPromptHistory(id, user.getId()));
     }
 
     @PostMapping

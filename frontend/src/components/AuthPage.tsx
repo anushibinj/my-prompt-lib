@@ -92,7 +92,7 @@ export function AuthPage({ onAuth }: AuthPageProps) {
     return (
         <div className="auth-page">
             <div className="auth-card">
-                <h1>🧩 PromptLib</h1>
+                <h1>🧩 My Prompt Lib</h1>
                 <p className="auth-subtitle">Save, manage, and run your prompt templates</p>
                 <div className="auth-tabs">
                     <button

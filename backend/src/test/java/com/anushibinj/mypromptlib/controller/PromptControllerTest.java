@@ -1,6 +1,7 @@
 package com.anushibinj.mypromptlib.controller;
 
 import com.anushibinj.mypromptlib.model.Prompt;
+import com.anushibinj.mypromptlib.model.PromptVersion;
 import com.anushibinj.mypromptlib.model.User;
 import com.anushibinj.mypromptlib.service.PromptService;
 import com.anushibinj.mypromptlib.service.UserService;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -186,5 +188,24 @@ public class PromptControllerTest {
         mockMvc.perform(get("/api/prompts")
                         .header("Authorization", "Bearer invalid-token"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testGetPromptHistory() throws Exception {
+        UUID promptId = UUID.randomUUID();
+        PromptVersion v1 = PromptVersion.builder()
+                .id(UUID.randomUUID()).promptId(promptId).versionNumber(1)
+                .title("T1").content("C1").createdAt(Instant.now()).build();
+        PromptVersion v2 = PromptVersion.builder()
+                .id(UUID.randomUUID()).promptId(promptId).versionNumber(2)
+                .title("T2").content("C2").createdAt(Instant.now()).build();
+        when(promptService.getPromptHistory(eq(promptId), any(UUID.class)))
+                .thenReturn(List.of(v2, v1));
+
+        mockMvc.perform(get("/api/prompts/{id}/history", promptId)
+                        .header("Authorization", "Bearer " + TEST_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].versionNumber").value(2))
+                .andExpect(jsonPath("$[1].versionNumber").value(1));
     }
 }
