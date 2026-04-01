@@ -71,3 +71,14 @@ export const getSharedPrompt = async (id: string): Promise<Prompt> => {
     const response = await api.get(`/prompts/shared/${id}`);
     return response.data;
 };
+
+// Google auth
+export const getGoogleClientId = async (): Promise<string> => {
+    const response = await api.get('/auth/google-client-id');
+    return response.data.clientId;
+};
+
+export const googleLogin = async (credential: string): Promise<AuthResponse> => {
+    const response = await api.post('/auth/google', { credential });
+    return response.data;
+};

@@ -106,4 +106,60 @@ public class UserServiceTest {
         assertFalse(result.isPresent());
         verify(userRepository, never()).findByToken(any());
     }
+
+    @Test
+    void testLoginUser_googleUserNullPassword() {
+        User googleUser = User.builder()
+                .id(userId)
+                .username("google@example.com")
+                .password(null)
+                .googleId("google-123")
+                .token("test-token")
+                .build();
+        when(userRepository.findByUsername("google@example.com")).thenReturn(Optional.of(googleUser));
+
+        Optional<User> result = userService.loginUser("google@example.com", "anypassword");
+        assertFalse(result.isPresent());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void testLoginOrRegisterGoogleUser_existingGoogleUser() {
+        when(userRepository.findByGoogleId("google-123")).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        User result = userService.loginOrRegisterGoogleUser("google-123", "test@example.com");
+        assertNotNull(result);
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void testLoginOrRegisterGoogleUser_existingUsernameMatchingEmail() {
+        when(userRepository.findByGoogleId("google-456")).thenReturn(Optional.empty());
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        User result = userService.loginOrRegisterGoogleUser("google-456", "testuser");
+        assertNotNull(result);
+        assertEquals("google-456", user.getGoogleId());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void testLoginOrRegisterGoogleUser_newUser() {
+        when(userRepository.findByGoogleId("google-789")).thenReturn(Optional.empty());
+        when(userRepository.findByUsername("new@example.com")).thenReturn(Optional.empty());
+        User newUser = User.builder()
+                .id(UUID.randomUUID())
+                .username("new@example.com")
+                .googleId("google-789")
+                .token("new-token")
+                .build();
+        when(userRepository.save(any(User.class))).thenReturn(newUser);
+
+        User result = userService.loginOrRegisterGoogleUser("google-789", "new@example.com");
+        assertNotNull(result);
+        assertEquals("new@example.com", result.getUsername());
+        assertEquals("google-789", result.getGoogleId());
+    }
 }

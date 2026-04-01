@@ -27,7 +27,7 @@ public class UserService {
 
     public Optional<User> loginUser(String username, String password) {
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isPresent() && userOptional.get().getPassword().equals(password)) {
+        if (userOptional.isPresent() && password != null && password.equals(userOptional.get().getPassword())) {
             User user = userOptional.get();
             // Assign new token
             user.setToken(UUID.randomUUID().toString());
@@ -35,6 +35,31 @@ public class UserService {
             return Optional.of(user);
         }
         return Optional.empty();
+    }
+
+    public User loginOrRegisterGoogleUser(String googleId, String email) {
+        // Check if user already linked to this Google account
+        Optional<User> existingGoogleUser = userRepository.findByGoogleId(googleId);
+        if (existingGoogleUser.isPresent()) {
+            User user = existingGoogleUser.get();
+            user.setToken(UUID.randomUUID().toString());
+            return userRepository.save(user);
+        }
+        // Check if user exists with same email as username — link Google ID
+        Optional<User> emailUser = userRepository.findByUsername(email);
+        if (emailUser.isPresent()) {
+            User user = emailUser.get();
+            user.setGoogleId(googleId);
+            user.setToken(UUID.randomUUID().toString());
+            return userRepository.save(user);
+        }
+        // Create new Google user
+        User newUser = User.builder()
+                .username(email)
+                .googleId(googleId)
+                .token(UUID.randomUUID().toString())
+                .build();
+        return userRepository.save(newUser);
     }
 
     public Optional<User> findByToken(String token) {

@@ -1,6 +1,7 @@
 package com.anushibinj.mypromptlib.controller;
 
 import com.anushibinj.mypromptlib.model.User;
+import com.anushibinj.mypromptlib.service.GoogleTokenVerifierService;
 import com.anushibinj.mypromptlib.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -20,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = AuthController.class)
+@TestPropertySource(properties = "google.client-id=test-google-client-id")
 public class AuthControllerTest {
 
     @Autowired
@@ -27,6 +30,9 @@ public class AuthControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private GoogleTokenVerifierService googleTokenVerifierService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -106,5 +112,60 @@ public class AuthControllerTest {
                         .content(requestBody))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Invalid credentials"));
+    }
+
+    @Test
+    void testGoogleLogin_success() throws Exception {
+        GoogleTokenVerifierService.GoogleUserInfo googleInfo =
+                new GoogleTokenVerifierService.GoogleUserInfo("google-123", "google@example.com");
+        when(googleTokenVerifierService.verify("valid-google-token")).thenReturn(googleInfo);
+
+        User googleUser = User.builder()
+                .id(UUID.randomUUID())
+                .username("google@example.com")
+                .googleId("google-123")
+                .token("google-auth-token")
+                .build();
+        when(userService.loginOrRegisterGoogleUser("google-123", "google@example.com")).thenReturn(googleUser);
+
+        String requestBody = "{\"credential\": \"valid-google-token\"}";
+
+        mockMvc.perform(post("/api/auth/google")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("google-auth-token"))
+                .andExpect(jsonPath("$.username").value("google@example.com"));
+    }
+
+    @Test
+    void testGoogleLogin_invalidToken() throws Exception {
+        when(googleTokenVerifierService.verify("invalid-token"))
+                .thenThrow(new RuntimeException("Failed to verify Google token"));
+
+        String requestBody = "{\"credential\": \"invalid-token\"}";
+
+        mockMvc.perform(post("/api/auth/google")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Google authentication failed"));
+    }
+
+    @Test
+    void testGoogleLogin_validationFail() throws Exception {
+        String requestBody = "{\"credential\": \"\"}";
+
+        mockMvc.perform(post("/api/auth/google")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testGetGoogleClientId() throws Exception {
+        mockMvc.perform(get("/api/auth/google-client-id"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clientId").value("test-google-client-id"));
     }
 }

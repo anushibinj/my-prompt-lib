@@ -24,8 +24,9 @@ public class User {
     @Column(unique = true)
     private String username;
 
-    @NotBlank(message = "Password cannot be empty")
     private String password;
 
     private String token; // simple token auth
+
+    private String googleId;
 }

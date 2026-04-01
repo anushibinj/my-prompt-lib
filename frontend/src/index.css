@@ -300,6 +300,33 @@ textarea.input-field {
   justify-content: center;
 }
 
+/* Auth divider */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.25rem 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.auth-divider span {
+  padding: 0 0.75rem;
+}
+
+/* Google button container */
+.google-btn-container {
+  display: flex;
+  justify-content: center;
+}
+
 /* Sidebar Footer */
 .sidebar-footer {
   padding: 0.75rem 1rem;
