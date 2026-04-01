@@ -31,11 +31,13 @@ export function PromptEditor({ onSaved }: PromptEditorProps) {
             const payload: Prompt = { title, content, isPublic };
             if (id) {
                 await updatePrompt(id, payload);
+                onSaved?.();
+                navigate(`/prompt/${id}`);
             } else {
-                await createPrompt(payload);
+                const created = await createPrompt(payload);
+                onSaved?.();
+                navigate(`/prompt/${created.id}`);
             }
-            onSaved?.();
-            navigate('/');
         } catch (err) {
             console.error('Error saving:', err);
         } finally {

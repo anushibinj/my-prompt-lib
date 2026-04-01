@@ -1,11 +1,13 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPrompt, deletePrompt, type Prompt } from '../api/promptApi';
-import { FiCopy, FiEdit2, FiTrash2, FiShare2, FiClock } from 'react-icons/fi';
+import { FiCopy, FiEdit2, FiTrash2, FiShare2, FiClock, FiRotateCcw } from 'react-icons/fi';
 
 interface PromptRunnerProps {
   onDeleted?: () => void;
 }
+
+const varsStorageKey = (id: string) => `prompt_vars_${id}`;
 
 export function PromptRunner({ onDeleted }: PromptRunnerProps) {
   const { id } = useParams<{ id: string }>();
@@ -19,10 +21,15 @@ export function PromptRunner({ onDeleted }: PromptRunnerProps) {
     if (id) {
       getPrompt(id).then(data => {
         setPrompt(data);
+        const saved = (() => {
+          try { return JSON.parse(localStorage.getItem(varsStorageKey(id)) || '{}'); }
+          catch { return {}; }
+        })();
         const initialVars: Record<string, string> = {};
         const matches = [...data.content.matchAll(/\{\{([^}]+)\}\}/g)];
         matches.forEach(match => {
-           initialVars[match[1].trim()] = '';
+          const key = match[1].trim();
+          initialVars[key] = saved[key] ?? '';
         });
         setVariables(initialVars);
       }).catch(err => console.error(err));
@@ -35,7 +42,16 @@ export function PromptRunner({ onDeleted }: PromptRunnerProps) {
   }, [prompt]);
 
   const handleVarChange = (prop: string, value: string) => {
-    setVariables(prev => ({ ...prev, [prop]: value }));
+    setVariables(prev => {
+      const next = { ...prev, [prop]: value };
+      if (id) localStorage.setItem(varsStorageKey(id), JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const handleResetVars = () => {
+    if (id) localStorage.removeItem(varsStorageKey(id));
+    setVariables(prev => Object.fromEntries(Object.keys(prev).map(k => [k, ''])));
   };
 
   const finalPrompt = useMemo(() => {
@@ -54,7 +70,14 @@ export function PromptRunner({ onDeleted }: PromptRunnerProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const [shareNote, setShareNote] = useState(false);
+
   const handleShareLink = () => {
+    if (!prompt?.isPublic) {
+      setShareNote(true);
+      setTimeout(() => setShareNote(false), 3000);
+      return;
+    }
     const shareUrl = `${window.location.origin}/shared/${id}`;
     navigator.clipboard.writeText(shareUrl);
     setLinkCopied(true);
@@ -77,16 +100,20 @@ export function PromptRunner({ onDeleted }: PromptRunnerProps) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <h1>{prompt.title}</h1>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {prompt.isPublic && (
-                    <button className="btn" onClick={handleShareLink}>
-                        <FiShare2 /> {linkCopied ? 'Link Copied!' : 'Share Link'}
-                    </button>
-                )}
+                <button className="btn" onClick={handleShareLink}>
+                    <FiShare2 /> {linkCopied ? 'Link Copied!' : 'Share Link'}
+                </button>
                 <button className="btn" onClick={() => navigate(`/prompt/${id}/history`)}><FiClock /> History</button>
                 <button className="btn" onClick={() => navigate(`/edit/${id}`)}><FiEdit2 /> Edit</button>
                 <button className="btn btn-danger" onClick={handleDelete}><FiTrash2 /> Delete</button>
             </div>
         </div>
+
+        {shareNote && (
+            <div className="auth-error" style={{ marginBottom: '1rem' }}>
+                This prompt is private. Make it public (via Edit) before sharing.
+            </div>
+        )}
 
         {prompt.isPublic && (
             <div className="public-badge">Public prompt</div>
@@ -94,7 +121,12 @@ export function PromptRunner({ onDeleted }: PromptRunnerProps) {
 
         {uniqueVars.length > 0 && (
             <div className="variables-section">
-                <h3 style={{ color: 'var(--text-primary)', marginTop: 0 }}>Variables</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>Variables</h3>
+                    <button className="btn btn-icon" onClick={handleResetVars} title="Reset all variables">
+                        <FiRotateCcw /> Reset
+                    </button>
+                </div>
                 <div className="variables-grid">
                     {uniqueVars.map(v => (
                         <div key={v} className="variable-input-wrapper">

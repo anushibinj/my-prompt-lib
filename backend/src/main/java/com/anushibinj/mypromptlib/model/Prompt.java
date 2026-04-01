@@ -1,5 +1,6 @@
 package com.anushibinj.mypromptlib.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,5 +35,6 @@ public class Prompt {
 
     private UUID userId;
 
+    @JsonProperty("isPublic")
     private boolean isPublic;
 }

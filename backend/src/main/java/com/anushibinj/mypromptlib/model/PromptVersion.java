@@ -1,5 +1,6 @@
 package com.anushibinj.mypromptlib.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,7 @@ public class PromptVersion {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @JsonProperty("isPublic")
     private boolean isPublic;
 
     private Instant createdAt;

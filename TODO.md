@@ -5,8 +5,8 @@
 - [x] Add flyway migration to the app for managing the DB schema. Make sure that all queries and components are modifiable in the future. for example, name indices and constraints so that they can be referred to in the later migration SQLs and updated
 - [x] The application's name is "My Prompt Lib". Change all of the frontend to reflect the same.
 - [x] Prompts should be versioned. Add a history button in the frontend so that the user can see a history of prompts. Also, the diff between each version should be shown to the user.
-- [ ] Feature: The frontend variable filler should remember all the variable values in localStorage. Provide a reset button to clear it.
-- [ ] Bug: Unable to mark a prompt as public
-- [ ] Feature: Add a "Share" button in the prompt page
-- [ ] Feature: The website header should redirect to "/". Add a link to it.
-- [ ] Bug: After editing a prompt and clicking Save, it should save it and go back to the same prompt. As of now, it is redirecting to the landing page.
+- [x] Feature: The frontend variable filler should remember all the variable values in localStorage. Provide a reset button to clear it.
+- [x] Bug: Unable to mark a prompt as public
+- [x] Feature: Add a "Share" button in the prompt page
+- [x] Feature: The website header should redirect to "/". Add a link to it.
+- [x] Bug: After editing a prompt and clicking Save, it should save it and go back to the same prompt. As of now, it is redirecting to the landing page.
