@@ -250,6 +250,21 @@ textarea.input-field {
   min-height: 100px;
 }
 
+.placeholder-empty {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-style: italic;
+}
+
+.placeholder-filled {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
 /* Auth Page */
 .auth-page {
   display: flex;

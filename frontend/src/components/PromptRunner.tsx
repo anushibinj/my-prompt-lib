@@ -64,6 +64,24 @@ export function PromptRunner({ onDeleted }: PromptRunnerProps) {
     return res;
   }, [prompt, variables]);
 
+  // JSX nodes for the output preview with placeholder highlighting
+  const outputPreviewNodes = useMemo(() => {
+    if (!prompt) return null;
+    const parts = prompt.content.split(/(\{\{[^}]+\}\})/g);
+    return parts.map((part, i) => {
+      const match = part.match(/^\{\{([^}]+)\}\}$/);
+      if (match) {
+        const key = match[1].trim();
+        const val = variables[key];
+        if (val) {
+          return <mark key={i} className="placeholder-filled">{val}</mark>;
+        }
+        return <mark key={i} className="placeholder-empty">{'{{' + key + '}}'}</mark>;
+      }
+      return <span key={i}>{part}</span>;
+    });
+  }, [prompt, variables]);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(finalPrompt);
     setCopied(true);
@@ -147,7 +165,7 @@ export function PromptRunner({ onDeleted }: PromptRunnerProps) {
 
         <h3 style={{ color: 'var(--text-muted)' }}>Output Preview</h3>
         <div className="output-preview">
-            {finalPrompt}
+            {outputPreviewNodes ?? finalPrompt}
         </div>
         
         <button className="btn btn-primary" onClick={handleCopy}>
