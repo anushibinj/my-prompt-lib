@@ -29,4 +29,8 @@ public class Prompt {
 
     @NotBlank(message = "Content cannot be empty")
     private String content;
+
+    private UUID userId;
+
+    private boolean isPublic;
 }

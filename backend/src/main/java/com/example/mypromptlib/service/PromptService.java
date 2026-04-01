@@ -14,28 +14,47 @@ public class PromptService {
 
     private final PromptRepository promptRepository;
 
-    public List<Prompt> getAllPrompts() {
-        return promptRepository.findAll();
+    public List<Prompt> getAllPromptsForUser(UUID userId) {
+        return promptRepository.findByUserId(userId);
     }
 
-    public Prompt getPromptById(UUID id) {
-        return promptRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Prompt not found with id: " + id));
+    public List<Prompt> getPublicPrompts() {
+        return promptRepository.findByIsPublicTrue();
     }
 
-    public Prompt createPrompt(Prompt prompt) {
+    public Prompt getPromptByIdAndUser(UUID id, UUID userId) {
+        Prompt prompt = promptRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Prompt not found"));
+        if (!prompt.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized to access this prompt");
+        }
+        return prompt;
+    }
+
+    public Prompt getSharedPrompt(UUID id) {
+        Prompt prompt = promptRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Prompt not found"));
+        if (!prompt.isPublic()) {
+            throw new RuntimeException("This prompt is not public");
+        }
+        return prompt;
+    }
+
+    public Prompt createPrompt(Prompt prompt, UUID userId) {
+        prompt.setUserId(userId);
         return promptRepository.save(prompt);
     }
 
-    public Prompt updatePrompt(UUID id, Prompt promptDetails) {
-        Prompt existing = getPromptById(id);
+    public Prompt updatePrompt(UUID id, Prompt promptDetails, UUID userId) {
+        Prompt existing = getPromptByIdAndUser(id, userId);
         existing.setTitle(promptDetails.getTitle());
         existing.setContent(promptDetails.getContent());
+        existing.setPublic(promptDetails.isPublic());
         return promptRepository.save(existing);
     }
 
-    public void deletePrompt(UUID id) {
-        Prompt existing = getPromptById(id);
+    public void deletePrompt(UUID id, UUID userId) {
+        Prompt existing = getPromptByIdAndUser(id, userId);
         promptRepository.delete(existing);
     }
 }

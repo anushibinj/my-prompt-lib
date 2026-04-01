@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface PromptRepository extends JpaRepository<Prompt, UUID> {
+    java.util.List<Prompt> findByUserId(UUID userId);
+    java.util.List<Prompt> findByIsPublicTrue();
 }
