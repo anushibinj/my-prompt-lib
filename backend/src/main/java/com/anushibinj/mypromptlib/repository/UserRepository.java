@@ -1,6 +1,6 @@
-package com.example.mypromptlib.repository;
+package com.anushibinj.mypromptlib.repository;
 
-import com.example.mypromptlib.model.User;
+import com.anushibinj.mypromptlib.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

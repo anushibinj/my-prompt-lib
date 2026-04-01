@@ -1,4 +1,4 @@
-package com.example.mypromptlib.model;
+package com.anushibinj.mypromptlib.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

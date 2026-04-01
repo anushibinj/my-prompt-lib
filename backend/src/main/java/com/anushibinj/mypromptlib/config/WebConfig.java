@@ -1,4 +1,4 @@
-package com.example.mypromptlib.config;
+package com.anushibinj.mypromptlib.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

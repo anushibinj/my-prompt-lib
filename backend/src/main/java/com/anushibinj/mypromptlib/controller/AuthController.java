@@ -1,7 +1,7 @@
-package com.example.mypromptlib.controller;
+package com.anushibinj.mypromptlib.controller;
 
-import com.example.mypromptlib.model.User;
-import com.example.mypromptlib.service.UserService;
+import com.anushibinj.mypromptlib.model.User;
+import com.anushibinj.mypromptlib.service.UserService;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

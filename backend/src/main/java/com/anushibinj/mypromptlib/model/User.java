@@ -1,4 +1,4 @@
-package com.example.mypromptlib.model;
+package com.anushibinj.mypromptlib.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

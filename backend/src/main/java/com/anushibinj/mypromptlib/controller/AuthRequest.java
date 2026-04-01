@@ -1,4 +1,4 @@
-package com.example.mypromptlib.controller;
+package com.anushibinj.mypromptlib.controller;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

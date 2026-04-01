@@ -1,4 +1,4 @@
-package com.example.mypromptlib.exception;
+package com.anushibinj.mypromptlib.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
-package com.example.mypromptlib.service;
+package com.anushibinj.mypromptlib.service;
 
-import com.example.mypromptlib.model.Prompt;
-import com.example.mypromptlib.repository.PromptRepository;
+import com.anushibinj.mypromptlib.model.Prompt;
+import com.anushibinj.mypromptlib.repository.PromptRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

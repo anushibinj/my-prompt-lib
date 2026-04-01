@@ -1,7 +1,7 @@
-package com.example.mypromptlib.config;
+package com.anushibinj.mypromptlib.config;
 
-import com.example.mypromptlib.model.User;
-import com.example.mypromptlib.service.UserService;
+import com.anushibinj.mypromptlib.model.User;
+import com.anushibinj.mypromptlib.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

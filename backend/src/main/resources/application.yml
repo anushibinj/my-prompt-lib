@@ -19,4 +19,4 @@ spring:
 logging:
   level:
     root: INFO
-    com.example.mypromptlib: DEBUG
+    com.anushibinj.mypromptlib: DEBUG

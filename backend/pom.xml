@@ -107,7 +107,7 @@
                             </rules>
                             <!-- exclude the main application class from coverage -->
                             <excludes>
-                                <exclude>com/example/mypromptlib/MyPromptLibApplication.class</exclude>
+                                <exclude>com/anushibinj/mypromptlib/MyPromptLibApplication.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>
