@@ -6,12 +6,15 @@ import { PromptEditor } from './components/PromptEditor';
 import { PromptHistory } from './components/PromptHistory';
 import { SharedPromptRunner } from './components/SharedPromptRunner';
 import { AuthPage } from './components/AuthPage';
-import { getPrompts, logout, type Prompt } from './api/promptApi';
+import { getPrompts, logout, setNetworkErrorHandler, type Prompt } from './api/promptApi';
 
 function App() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [username, setUsername] = useState<string | null>(localStorage.getItem('username'));
+  const [promptsLoading, setPromptsLoading] = useState(false);
+  const [promptsError, setPromptsError] = useState(false);
+  const [backendDown, setBackendDown] = useState(false);
 
   const handleLogout = useCallback(() => {
     logout();
@@ -22,14 +25,27 @@ function App() {
 
   const refreshPrompts = useCallback(() => {
     if (token) {
-      getPrompts().then(setPrompts).catch(() => {
-        // Token may be expired/invalid
-        handleLogout();
-      });
+      setPromptsLoading(true);
+      setPromptsError(false);
+      getPrompts()
+        .then(data => { setPrompts(data); setPromptsLoading(false); })
+        .catch(err => {
+          setPromptsLoading(false);
+          if (err.response?.status === 401) {
+            handleLogout();
+          } else {
+            setPromptsError(true);
+          }
+        });
     }
   }, [token, handleLogout]);
 
   useEffect(() => {
+    setNetworkErrorHandler(() => setBackendDown(true));
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshPrompts();
   }, [refreshPrompts]);
 
@@ -39,7 +55,23 @@ function App() {
   };
 
   return (
-    <Router>
+    <>
+      {backendDown && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: '#b91c1c', color: '#fff', textAlign: 'center',
+          padding: '0.75rem 1rem', fontSize: '0.95rem', fontWeight: 500,
+        }}>
+          🔧 My Prompt Lib is currently down for maintenance. Please try again later.
+          <button
+            onClick={() => setBackendDown(false)}
+            style={{ marginLeft: '1rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.5)', color: '#fff', borderRadius: '4px', padding: '0.2rem 0.6rem', cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+      <Router>
       <Routes>
         {/* Shared prompt route - accessible without auth */}
         <Route path="/shared/:id" element={<SharedPromptRunner />} />
@@ -50,7 +82,7 @@ function App() {
             <AuthPage onAuth={handleAuth} />
           ) : (
             <div className="app-container">
-              <Sidebar prompts={prompts} username={username} onLogout={handleLogout} />
+              <Sidebar prompts={prompts} username={username} onLogout={handleLogout} loading={promptsLoading} error={promptsError} onRetry={refreshPrompts} />
               <Routes>
                 <Route path="/" element={<div className="main-content"><div className="card"><h1>Welcome to My Prompt Lib</h1><p>Select a prompt from the sidebar or create a new one to get started.</p></div></div>} />
                 <Route path="/new" element={<PromptEditor onSaved={refreshPrompts} />} />
@@ -63,7 +95,9 @@ function App() {
         } />
       </Routes>
     </Router>
+    </>
   );
 }
+
 
 export default App;

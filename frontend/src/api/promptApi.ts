@@ -35,6 +35,24 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+type NetworkErrorHandler = () => void;
+let _onNetworkError: NetworkErrorHandler | null = null;
+
+export const setNetworkErrorHandler = (handler: NetworkErrorHandler) => {
+    _onNetworkError = handler;
+};
+
+// Notify when backend is unreachable (no response received)
+api.interceptors.response.use(
+    response => response,
+    error => {
+        if (!error.response && error.request) {
+            _onNetworkError?.();
+        }
+        return Promise.reject(error);
+    }
+);
+
 // Auth API
 export const register = async (username: string, password: string): Promise<AuthResponse> => {
     const response = await api.post('/auth/register', { username, password });

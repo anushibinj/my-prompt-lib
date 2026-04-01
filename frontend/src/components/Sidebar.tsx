@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Prompt } from '../api/promptApi';
-import { FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiLogOut, FiMenu, FiX, FiRefreshCw } from 'react-icons/fi';
 
 interface SidebarProps {
   prompts: Prompt[];
   username: string | null;
   onLogout: () => void;
+  loading?: boolean;
+  error?: boolean;
+  onRetry?: () => void;
 }
 
-export function Sidebar({ prompts, username, onLogout }: SidebarProps) {
+export function Sidebar({ prompts, username, onLogout, loading, error, onRetry }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -31,14 +34,29 @@ export function Sidebar({ prompts, username, onLogout }: SidebarProps) {
           </div>
         </div>
         <div className="prompt-list">
-          {prompts.map(prompt => (
-            <Link key={prompt.id} to={`/prompt/${prompt.id}`} className="prompt-item" onClick={() => setMobileOpen(false)}>
-              <div className="title">{prompt.title}</div>
-              <div className="snippet">{prompt.content}</div>
-            </Link>
-          ))}
-          {prompts.length === 0 && (
-            <div style={{ padding: '1rem', color: 'var(--text-muted)' }}>No prompts found.</div>
+          {loading ? (
+            <div style={{ padding: '1rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span className="sidebar-spinner" /> Loading prompts...
+            </div>
+          ) : error ? (
+            <div style={{ padding: '1rem' }}>
+              <div style={{ color: 'var(--accent-danger)', marginBottom: '0.5rem', fontSize: '0.85rem' }}>Failed to load prompts.</div>
+              <button className="btn" style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }} onClick={onRetry}>
+                <FiRefreshCw /> Retry
+              </button>
+            </div>
+          ) : (
+            <>
+              {prompts.map(prompt => (
+                <Link key={prompt.id} to={`/prompt/${prompt.id}`} className="prompt-item" onClick={() => setMobileOpen(false)}>
+                  <div className="title">{prompt.title}</div>
+                  <div className="snippet">{prompt.content}</div>
+                </Link>
+              ))}
+              {prompts.length === 0 && (
+                <div style={{ padding: '1rem', color: 'var(--text-muted)' }}>No prompts found.</div>
+              )}
+            </>
           )}
         </div>
         <div className="sidebar-footer">
