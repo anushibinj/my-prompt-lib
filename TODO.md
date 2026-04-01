@@ -11,3 +11,5 @@
 - [x] Feature: The website header should redirect to "/". Add a link to it.
 - [x] Bug: After editing a prompt and clicking Save, it should save it and go back to the same prompt. As of now, it is redirecting to the landing page.
 - [ ] BUG: When just the prompt is made public, that doesn't appear in the history
+- [ ] Feature: When prompts are loading from the backend, show a spinner on the left widget. If it fails to load, show an error.
+- [ ] Feature: If the backend is down, show an error in the frontend saying something like the site is down for maintenance.
