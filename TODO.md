@@ -1,4 +1,4 @@
-- [ ] Allow multiple users to sign in and save their own prompts
-- [ ] Allow users to share their prompt with other users via URL
-- [ ] Make the frontend fully responsive so that it loads properly on mobile phone as well
+- [x] Allow multiple users to sign in and save their own prompts
+- [x] Allow users to share their prompt with other users via URL
+- [x] Make the frontend fully responsive so that it loads properly on mobile phone as well
 - [ ] Allow Sign in with Google too. The Google client credentials and details should be passed into application.yml

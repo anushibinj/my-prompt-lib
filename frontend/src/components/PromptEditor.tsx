@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createPrompt, getPrompt, updatePrompt, type Prompt } from '../api/promptApi';
 
-export function PromptEditor() {
+interface PromptEditorProps {
+    onSaved?: () => void;
+}
+
+export function PromptEditor({ onSaved }: PromptEditorProps) {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [isPublic, setIsPublic] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -14,6 +19,7 @@ export function PromptEditor() {
             getPrompt(id).then(data => {
                 setTitle(data.title);
                 setContent(data.content);
+                setIsPublic(data.isPublic ?? false);
             });
         }
     }, [id]);
@@ -22,14 +28,14 @@ export function PromptEditor() {
         e.preventDefault();
         setIsSaving(true);
         try {
-            const payload: Prompt = { title, content };
+            const payload: Prompt = { title, content, isPublic };
             if (id) {
                 await updatePrompt(id, payload);
             } else {
                 await createPrompt(payload);
             }
+            onSaved?.();
             navigate('/');
-            window.location.reload();
         } catch (err) {
             console.error('Error saving:', err);
         } finally {
@@ -66,6 +72,17 @@ export function PromptEditor() {
                             value={content} 
                             onChange={e => setContent(e.target.value)} 
                         />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="toggle-label">
+                            <input
+                                type="checkbox"
+                                checked={isPublic}
+                                onChange={e => setIsPublic(e.target.checked)}
+                            />
+                            <span>Make this prompt public (shareable via link)</span>
+                        </label>
                     </div>
 
                     <div style={{ display: 'flex', gap: '1rem' }}>

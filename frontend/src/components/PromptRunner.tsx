@@ -1,20 +1,24 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPrompt, deletePrompt, type Prompt } from '../api/promptApi';
-import { FiCopy, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiCopy, FiEdit2, FiTrash2, FiShare2 } from 'react-icons/fi';
 
-export function PromptRunner() {
+interface PromptRunnerProps {
+  onDeleted?: () => void;
+}
+
+export function PromptRunner({ onDeleted }: PromptRunnerProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [variables, setVariables] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     if (id) {
       getPrompt(id).then(data => {
         setPrompt(data);
-        // Initialize empty variable state
         const initialVars: Record<string, string> = {};
         const matches = [...data.content.matchAll(/\{\{([^}]+)\}\}/g)];
         matches.forEach(match => {
@@ -50,12 +54,18 @@ export function PromptRunner() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleShareLink = () => {
+    const shareUrl = `${window.location.origin}/shared/${id}`;
+    navigator.clipboard.writeText(shareUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
   const handleDelete = async () => {
     if (id && window.confirm("Are you sure you want to delete this prompt?")) {
         await deletePrompt(id);
+        onDeleted?.();
         navigate('/');
-        // Ideal logic would refresh parent state too.
-        window.location.reload(); 
     }
   };
 
@@ -64,13 +74,22 @@ export function PromptRunner() {
   return (
     <div className="main-content">
       <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <h1>{prompt.title}</h1>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {prompt.isPublic && (
+                    <button className="btn" onClick={handleShareLink}>
+                        <FiShare2 /> {linkCopied ? 'Link Copied!' : 'Share Link'}
+                    </button>
+                )}
                 <button className="btn" onClick={() => navigate(`/edit/${id}`)}><FiEdit2 /> Edit</button>
                 <button className="btn btn-danger" onClick={handleDelete}><FiTrash2 /> Delete</button>
             </div>
         </div>
+
+        {prompt.isPublic && (
+            <div className="public-badge">Public prompt</div>
+        )}
 
         {uniqueVars.length > 0 && (
             <div className="variables-section">

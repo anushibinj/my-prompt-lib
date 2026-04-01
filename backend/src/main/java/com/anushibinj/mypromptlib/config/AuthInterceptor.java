@@ -24,7 +24,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
 
         String path = request.getRequestURI();
-        if (path.startsWith("/api/auth/") || path.startsWith("/api/prompts/shared/")) {
+        if (path.startsWith("/api/auth/") || path.startsWith("/api/prompts/shared")) {
             return true;
         }
 

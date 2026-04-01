@@ -1,28 +1,65 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { PromptRunner } from './components/PromptRunner';
 import { PromptEditor } from './components/PromptEditor';
-import { getPrompts, type Prompt } from './api/promptApi';
+import { SharedPromptRunner } from './components/SharedPromptRunner';
+import { AuthPage } from './components/AuthPage';
+import { getPrompts, logout, type Prompt } from './api/promptApi';
 
 function App() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [username, setUsername] = useState<string | null>(localStorage.getItem('username'));
+
+  const handleLogout = useCallback(() => {
+    logout();
+    setToken(null);
+    setUsername(null);
+    setPrompts([]);
+  }, []);
+
+  const refreshPrompts = useCallback(() => {
+    if (token) {
+      getPrompts().then(setPrompts).catch(() => {
+        // Token may be expired/invalid
+        handleLogout();
+      });
+    }
+  }, [token, handleLogout]);
 
   useEffect(() => {
-    getPrompts().then(setPrompts).catch(console.error);
-  }, []);
+    refreshPrompts();
+  }, [refreshPrompts]);
+
+  const handleAuth = (newToken: string, newUsername: string) => {
+    setToken(newToken);
+    setUsername(newUsername);
+  };
 
   return (
     <Router>
-      <div className="app-container">
-        <Sidebar prompts={prompts} />
-        <Routes>
-          <Route path="/" element={<div className="main-content"><div className="card"><h1>Welcome to PromptLib</h1><p>Select a prompt from the sidebar or create a new one to get started.</p></div></div>} />
-          <Route path="/new" element={<PromptEditor />} />
-          <Route path="/edit/:id" element={<PromptEditor />} />
-          <Route path="/prompt/:id" element={<PromptRunner />} />
-        </Routes>
-      </div>
+      <Routes>
+        {/* Shared prompt route - accessible without auth */}
+        <Route path="/shared/:id" element={<SharedPromptRunner />} />
+
+        {/* All other routes require auth */}
+        <Route path="*" element={
+          !token ? (
+            <AuthPage onAuth={handleAuth} />
+          ) : (
+            <div className="app-container">
+              <Sidebar prompts={prompts} username={username} onLogout={handleLogout} />
+              <Routes>
+                <Route path="/" element={<div className="main-content"><div className="card"><h1>Welcome to PromptLib</h1><p>Select a prompt from the sidebar or create a new one to get started.</p></div></div>} />
+                <Route path="/new" element={<PromptEditor onSaved={refreshPrompts} />} />
+                <Route path="/edit/:id" element={<PromptEditor onSaved={refreshPrompts} />} />
+                <Route path="/prompt/:id" element={<PromptRunner onDeleted={refreshPrompts} />} />
+              </Routes>
+            </div>
+          )
+        } />
+      </Routes>
     </Router>
   );
 }
