@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 	"strings"
-
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -33,6 +33,8 @@ type LoggingConfig struct {
 }
 
 func LoadConfig() (*Config, error) {
+	godotenv.Load() // Load .env file if it exists
+
 	v := viper.New()
 
 	v.SetConfigName("application")
