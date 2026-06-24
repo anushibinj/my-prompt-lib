@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"backend-go/internal/config"
@@ -37,27 +38,28 @@ func InitDB(cfg *config.Config) error {
 // parseJDBCURL converts a JDBC URL like jdbc:postgresql://localhost:5432/promptdb
 // into a DSN format for gorm postgres driver
 func parseJDBCURL(jdbcURL, user, password string) string {
-	// Simple parsing for expected jdbc url format
-	// jdbc:postgresql://localhost:5432/promptdb
-
-	dsn := jdbcURL
+	// Convert JDBC URL (jdbc:postgresql://...) to postgres URL and preserve query params.
+	dsn := strings.TrimSpace(jdbcURL)
 	dsn = strings.Replace(dsn, "jdbc:postgresql://", "postgres://", 1)
 
-	// Add credentials if they are missing from the URL
-	if !strings.Contains(dsn, "@") {
-		// insert user:password@ before host
-		hostStart := strings.Index(dsn, "://") + 3
-		dsn = dsn[:hostStart] + user + ":" + password + "@" + dsn[hostStart:]
+	u, err := url.Parse(dsn)
+	if err != nil {
+		// Fall back to the converted string so caller still gets original parse behavior.
+		return dsn
 	}
 
-	// append sslmode=disable for local development default if not present
-	if !strings.Contains(dsn, "sslmode=") {
-		if strings.Contains(dsn, "?") {
-			dsn += "&sslmode=disable"
-		} else {
-			dsn += "?sslmode=disable"
-		}
+	// Add credentials only when URL does not already include them.
+	if u.User == nil {
+		u.User = url.UserPassword(user, password)
 	}
 
-	return dsn
+	q := u.Query()
+	if q.Get("sslmode") == "" {
+		// Managed Postgres providers (e.g. Aiven) typically require encryption.
+		// For local Postgres without TLS, set ?sslmode=disable in JDBC_URL.
+		q.Set("sslmode", "require")
+	}
+	u.RawQuery = q.Encode()
+
+	return u.String()
 }
