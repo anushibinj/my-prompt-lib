@@ -17,3 +17,4 @@
 - [x] Make the left sidebar collapsible
 - [x] The output preview should show unfilled placeholders highlighted in red color. The filled placeholders should be green highlighted.
 - [ ] Once the backend is up, the left sidebar refreshes properly. But the main section is just stuck and shows "Loading..." forever. Banner dismissed as expected.
+- [x] Move to GoLang
