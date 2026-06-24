@@ -54,10 +54,28 @@ func parseJDBCURL(jdbcURL, user, password string) string {
 	}
 
 	q := u.Query()
+	if ssl := strings.TrimSpace(q.Get("ssl")); ssl != "" {
+		// Some URLs use `ssl=...` (JDBC style), but pgx expects `sslmode=...`.
+		if q.Get("sslmode") == "" {
+			switch strings.ToLower(ssl) {
+			case "true", "on", "1", "enabled", "enable", "require":
+				q.Set("sslmode", "require")
+			case "false", "off", "0", "disabled", "disable":
+				q.Set("sslmode", "disable")
+			default:
+				q.Set("sslmode", ssl)
+			}
+		}
+		q.Del("ssl")
+	}
 	if q.Get("sslmode") == "" {
 		// Managed Postgres providers (e.g. Aiven) typically require encryption.
 		// For local Postgres without TLS, set ?sslmode=disable in JDBC_URL.
 		q.Set("sslmode", "require")
+	}
+	if q.Get("connect_timeout") == "" {
+		// Keep startup responsive when remote DB is slow/unreachable.
+		q.Set("connect_timeout", "10")
 	}
 	u.RawQuery = q.Encode()
 
