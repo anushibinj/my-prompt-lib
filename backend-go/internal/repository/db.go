@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"backend-go/internal/config"
 	"gorm.io/driver/postgres"
@@ -31,7 +32,55 @@ func InitDB(cfg *config.Config) error {
 		return fmt.Errorf("failed to connect database: %w", err)
 	}
 
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get sql db from gorm: %w", err)
+	}
+
+	maxOpen := cfg.Database.MaxOpenConns
+	if maxOpen <= 0 {
+		maxOpen = 3
+	}
+	maxIdle := cfg.Database.MaxIdleConns
+	if maxIdle < 0 {
+		maxIdle = 0
+	}
+	if maxIdle > maxOpen {
+		maxIdle = maxOpen
+	}
+	lifetimeMinutes := cfg.Database.ConnMaxLifetimeMinutes
+	if lifetimeMinutes <= 0 {
+		lifetimeMinutes = 5
+	}
+	idleMinutes := cfg.Database.ConnMaxIdleMinutes
+	if idleMinutes <= 0 {
+		idleMinutes = 1
+	}
+
+	sqlDB.SetMaxOpenConns(maxOpen)
+	sqlDB.SetMaxIdleConns(maxIdle)
+	sqlDB.SetConnMaxLifetime(time.Duration(lifetimeMinutes) * time.Minute)
+	sqlDB.SetConnMaxIdleTime(time.Duration(idleMinutes) * time.Minute)
+
 	DB = db
+	return nil
+}
+
+func CloseDB() error {
+	if DB == nil {
+		return nil
+	}
+
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get sql db from gorm for close: %w", err)
+	}
+
+	if err := sqlDB.Close(); err != nil {
+		return fmt.Errorf("failed to close database: %w", err)
+	}
+
+	DB = nil
 	return nil
 }
 

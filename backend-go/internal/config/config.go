@@ -19,9 +19,13 @@ type AppConfig struct {
 }
 
 type DatabaseConfig struct {
-	URL      string
-	Username string
-	Password string
+	URL                    string
+	Username               string
+	Password               string
+	MaxOpenConns           int
+	MaxIdleConns           int
+	ConnMaxLifetimeMinutes int
+	ConnMaxIdleMinutes     int
 }
 
 type GoogleConfig struct {
@@ -51,6 +55,10 @@ func LoadConfig() (*Config, error) {
 	v.SetDefault("spring.datasource.url", "jdbc:postgresql://localhost:5432/promptdb")
 	v.SetDefault("spring.datasource.username", "postgres")
 	v.SetDefault("spring.datasource.password", "password")
+	v.SetDefault("db.max-open-conns", 3)
+	v.SetDefault("db.max-idle-conns", 1)
+	v.SetDefault("db.conn-max-lifetime-minutes", 5)
+	v.SetDefault("db.conn-max-idle-minutes", 1)
 	v.SetDefault("google.client-id", "your-google-client-id-here")
 	v.SetDefault("logging.level.root", "INFO")
 
@@ -58,6 +66,10 @@ func LoadConfig() (*Config, error) {
 	v.BindEnv("spring.datasource.url", "JDBC_URL")
 	v.BindEnv("spring.datasource.username", "JDBC_USERNAME")
 	v.BindEnv("spring.datasource.password", "JDBC_PASSWORD")
+	v.BindEnv("db.max-open-conns", "DB_MAX_OPEN_CONNS")
+	v.BindEnv("db.max-idle-conns", "DB_MAX_IDLE_CONNS")
+	v.BindEnv("db.conn-max-lifetime-minutes", "DB_CONN_MAX_LIFETIME_MINUTES")
+	v.BindEnv("db.conn-max-idle-minutes", "DB_CONN_MAX_IDLE_MINUTES")
 	v.BindEnv("google.client-id", "GOOGLE_CLIENT_ID")
 
 	if err := v.ReadInConfig(); err != nil {
@@ -69,9 +81,13 @@ func LoadConfig() (*Config, error) {
 			Name: v.GetString("spring.application.name"),
 		},
 		Database: DatabaseConfig{
-			URL:      v.GetString("spring.datasource.url"),
-			Username: v.GetString("spring.datasource.username"),
-			Password: v.GetString("spring.datasource.password"),
+			URL:                    v.GetString("spring.datasource.url"),
+			Username:               v.GetString("spring.datasource.username"),
+			Password:               v.GetString("spring.datasource.password"),
+			MaxOpenConns:           v.GetInt("db.max-open-conns"),
+			MaxIdleConns:           v.GetInt("db.max-idle-conns"),
+			ConnMaxLifetimeMinutes: v.GetInt("db.conn-max-lifetime-minutes"),
+			ConnMaxIdleMinutes:     v.GetInt("db.conn-max-idle-minutes"),
 		},
 		Google: GoogleConfig{
 			ClientID: v.GetString("google.client-id"),
