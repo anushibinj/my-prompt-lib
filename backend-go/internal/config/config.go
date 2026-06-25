@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -55,10 +56,20 @@ func LoadConfig() (*Config, error) {
 	v.SetDefault("spring.datasource.url", "jdbc:postgresql://localhost:5432/promptdb")
 	v.SetDefault("spring.datasource.username", "postgres")
 	v.SetDefault("spring.datasource.password", "password")
-	v.SetDefault("db.max-open-conns", 3)
-	v.SetDefault("db.max-idle-conns", 1)
-	v.SetDefault("db.conn-max-lifetime-minutes", 5)
-	v.SetDefault("db.conn-max-idle-minutes", 1)
+
+	// Cloud Run can scale to many instances; keep per-instance pool conservative by default.
+	// K_SERVICE is automatically injected by Cloud Run at runtime.
+	if os.Getenv("K_SERVICE") != "" {
+		v.SetDefault("db.max-open-conns", 1)
+		v.SetDefault("db.max-idle-conns", 0)
+		v.SetDefault("db.conn-max-lifetime-minutes", 2)
+		v.SetDefault("db.conn-max-idle-minutes", 1)
+	} else {
+		v.SetDefault("db.max-open-conns", 3)
+		v.SetDefault("db.max-idle-conns", 1)
+		v.SetDefault("db.conn-max-lifetime-minutes", 5)
+		v.SetDefault("db.conn-max-idle-minutes", 1)
+	}
 	v.SetDefault("google.client-id", "your-google-client-id-here")
 	v.SetDefault("logging.level.root", "INFO")
 
